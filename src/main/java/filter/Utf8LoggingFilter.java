@@ -1,10 +1,6 @@
 package filter;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -19,11 +15,10 @@ public class Utf8LoggingFilter implements Filter {
 
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
 
-        if (request instanceof HttpServletRequest req) {
-            String qs = req.getQueryString();
-            String url = req.getRequestURI() + (qs != null ? "?" + qs : "");
-            System.out.println("[HTTP] " + req.getMethod() + " " + url);
+        if (request instanceof HttpServletRequest r) {
+            System.out.printf("[HTTP] %s %s%n", r.getMethod(), r.getRequestURI());
         }
 
         chain.doFilter(request, response);

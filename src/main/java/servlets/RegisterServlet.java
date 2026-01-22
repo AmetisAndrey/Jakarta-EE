@@ -1,20 +1,24 @@
 package servlets;
 
-import dao.UserDao;
-import model.User;
-
+import dao.UserRepository;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
 
+import static listener.AppInitListener.EMF_ATTR;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
-    private final UserDao userDao = new UserDao();
+
+    private UserRepository repo() {
+        EntityManagerFactory emf = (EntityManagerFactory) getServletContext().getAttribute(EMF_ATTR);
+        return new UserRepository(emf);
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -22,37 +26,30 @@ public class RegisterServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String username = trim(req.getParameter("username"));
-        String email = trim(req.getParameter("email"));
         String password = req.getParameter("password");
 
-        if (username.isEmpty() || email.isEmpty() || password == null || password.length() < 6) {
-            req.setAttribute("error", "Заполните поля. Пароль минимум 6 символов.");
+        if (username.isEmpty() || password == null || password.isBlank()) {
+            req.setAttribute("error", "Введите логин и пароль.");
             req.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(req, resp);
             return;
         }
 
-        try {
-            if (userDao.existsByUsername(username)) {
-                req.setAttribute("error", "Имя пользователя уже занято.");
-                req.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(req, resp);
-                return;
-            }
-            if (userDao.existsByEmail(email)) {
-                req.setAttribute("error", "Email уже зарегистрирован.");
-                req.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(req, resp);
-                return;
-            }
-
-            User user = userDao.create(username, email, password);
-            req.getSession(true).setAttribute("authUser", user);
-
-            resp.sendRedirect(req.getContextPath() + "/shop?msg=welcome");
-        } catch (Exception e) {
-            throw new ServletException(e);
+        UserRepository r = repo();
+        if (r.findByUsername(username) != null) {
+            req.setAttribute("error", "Пользователь уже существует.");
+            req.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(req, resp);
+            return;
         }
+
+        String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
+        r.create(new User(username, hash));
+
+        resp.sendRedirect(req.getContextPath() + "/login");
     }
 
-    private String trim(String s) { return s == null ? "" : s.trim(); }
+    private static String trim(String s) {
+        return s == null ? "" : s.trim();
+    }
 }
