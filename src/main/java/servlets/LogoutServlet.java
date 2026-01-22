@@ -1,6 +1,5 @@
 package servlets;
 
-
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
@@ -10,9 +9,8 @@ import java.io.IOException;
 public class LogoutServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        HttpSession s = req.getSession(false);
-        if (s != null) s.invalidate();
-        resp.sendRedirect(req.getContextPath() + "/shop?msg=logout");
+        HttpSession session = req.getSession(false);
+        if (session != null) session.invalidate();
+        resp.sendRedirect(req.getContextPath() + "/login");
     }
 }
-

@@ -1,17 +1,29 @@
 package model;
 
-public class User {
-    private final long id;
-    private final String username;
-    private final String email;
+import jakarta.persistence.*;
 
-    public User(long id, String username, String email) {
-        this.id = id;
+@Entity
+@Table(name = "app_user")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 64)
+    private String username;
+
+    @Column(nullable = false, length = 100)
+    private String passwordHash;
+
+    protected User() { }
+
+    public User(String username, String passwordHash) {
         this.username = username;
-        this.email = email;
+        this.passwordHash = passwordHash;
     }
 
-    public long getId() { return id; }
+    public Long getId() { return id; }
     public String getUsername() { return username; }
-    public String getEmail() { return email; }
+    public String getPasswordHash() { return passwordHash; }
 }

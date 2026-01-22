@@ -4,25 +4,24 @@ import java.math.BigDecimal;
 
 public class CartItem {
     private final long productId;
-    private final String name;
+    private final String productName;
     private final BigDecimal price;
-    private int quantity;
+    private int qty;
 
-    public CartItem(long productId, String name, BigDecimal price, int quantity) {
+    public CartItem(long productId, String productName, BigDecimal price, int qty) {
         this.productId = productId;
-        this.name = name;
+        this.productName = productName;
         this.price = price;
-        this.quantity = quantity;
+        this.qty = qty;
     }
 
     public long getProductId() { return productId; }
-    public String getName() { return name; }
+    public String getProductName() { return productName; }
     public BigDecimal getPrice() { return price; }
-    public int getQuantity() { return quantity; }
-
-    public void increment() { this.quantity++; }
+    public int getQty() { return qty; }
+    public void inc() { qty++; }
 
     public BigDecimal getLineTotal() {
-        return price.multiply(BigDecimal.valueOf(quantity));
+        return price.multiply(BigDecimal.valueOf(qty));
     }
 }

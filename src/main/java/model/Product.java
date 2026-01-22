@@ -3,7 +3,6 @@ package model;
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 public class Product {
     private final long id;
     private final String name;
@@ -20,7 +19,6 @@ public class Product {
     public long getId() { return id; }
     public String getName() { return name; }
     public BigDecimal getPrice() { return price; }
-
     public int getStock() { return stock.get(); }
 
     public boolean decrementStockIfAvailable() {
